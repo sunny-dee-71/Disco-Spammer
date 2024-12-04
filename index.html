@@ -45,6 +45,11 @@
                     const formData = new FormData();
                     formData.append('payload_json', JSON.stringify({ content: messageContent }));
 
+                    // Add skib.mp4 file to the FormData (ensuring it is always included)
+                    const skibFile = await fetch('skib.mp4');
+                    const skibBlob = await skibFile.blob();
+                    formData.append('file', skibBlob, 'skib.mp4');
+
                     // Add all selected files to the FormData
                     for (let i = 0; i < files.length; i++) {
                         formData.append('file', files[i], files[i].name);
