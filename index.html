@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Webhook Sender</title>
+    <title>Discord Webhook Sender with File</title>
 </head>
 <body>
     <h1>Discord Webhook Message Sender</h1>
@@ -14,8 +14,8 @@
         <label for="messageContent">Message:</label><br>
         <textarea id="messageContent" placeholder="Type your message here..." rows="4" required></textarea><br><br>
 
-        <label for="videoUrl">Video URL (optional):</label><br>
-        <input type="url" id="videoUrl" placeholder="Enter a video URL"><br><br>
+        <label for="fileInput">Attach `skib.mp4`:</label><br>
+        <input type="file" id="fileInput" accept=".mp4"><br><br>
 
         <button type="button" onclick="sendWebhook()">Send Message</button>
     </form>
@@ -26,34 +26,26 @@
         async function sendWebhook() {
             const webhookUrl = document.getElementById('webhookUrl').value;
             const messageContent = document.getElementById('messageContent').value;
-            const videoUrl = document.getElementById('videoUrl').value;
+            const fileInput = document.getElementById('fileInput').files[0];
 
             if (!webhookUrl || !messageContent) {
                 document.getElementById('statusMessage').innerText = 'Please fill in all required fields!';
                 return;
             }
 
-            const payload = {
-                content: messageContent,
-            };
-
-            if (videoUrl) {
-                payload.embeds = [
-                    {
-                        title: "Attached Video",
-                        url: videoUrl,
-                        description: "Click the link to view the video."
-                    }
-                ];
+            if (!fileInput || fileInput.name !== "skib.mp4") {
+                document.getElementById('statusMessage').innerText = 'Please attach the file named "skib.mp4".';
+                return;
             }
+
+            const formData = new FormData();
+            formData.append('payload_json', JSON.stringify({ content: messageContent }));
+            formData.append('file', fileInput);
 
             try {
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
+                    body: formData,
                 });
 
                 if (response.ok) {
