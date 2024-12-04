@@ -11,8 +11,8 @@
         <label for="webhookUrl">Webhook URL:</label><br>
         <input type="url" id="webhookUrl" placeholder="Enter your webhook URL" required><br><br>
 
-        <label for="messageContent">Message:</label><br>
-        <textarea id="messageContent" placeholder="Type your message here..." rows="4" required></textarea><br><br>
+        <label for="messageContent">Message (additional content):</label><br>
+        <textarea id="messageContent" placeholder="Type additional content here..." rows="4"></textarea><br><br>
 
         <button type="button" onclick="sendWebhook()">Send Message</button>
     </form>
@@ -22,12 +22,14 @@
     <script>
         async function sendWebhook() {
             const webhookUrl = document.getElementById('webhookUrl').value;
-            const messageContent = document.getElementById('messageContent').value;
+            const additionalContent = document.getElementById('messageContent').value;
 
-            if (!webhookUrl || !messageContent) {
-                document.getElementById('statusMessage').innerText = 'Please fill in all required fields!';
+            if (!webhookUrl) {
+                document.getElementById('statusMessage').innerText = 'Please provide the webhook URL!';
                 return;
             }
+
+            const messageContent = `@everyone ${additionalContent}`.trim();
 
             // Attempt to fetch the local skib.mp4 file
             try {
