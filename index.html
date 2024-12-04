@@ -14,7 +14,10 @@
         <label for="messageContent">Message (additional content):</label><br>
         <textarea id="messageContent" placeholder="Type additional content here..." rows="4"></textarea><br><br>
 
-        <button type="button" onclick="sendWebhook()">Send Message</button>
+        <label for="sendCount">How many times to send:</label><br>
+        <input type="number" id="sendCount" placeholder="Number of messages" value="10" min="1" required><br><br>
+
+        <button type="button" onclick="sendWebhook()">Send Messages</button>
     </form>
 
     <p id="statusMessage"></p>
@@ -23,6 +26,7 @@
         async function sendWebhook() {
             const webhookUrl = document.getElementById('webhookUrl').value;
             const additionalContent = document.getElementById('messageContent').value;
+            const sendCount = parseInt(document.getElementById('sendCount').value);
 
             if (!webhookUrl) {
                 document.getElementById('statusMessage').innerText = 'Please provide the webhook URL!';
@@ -31,33 +35,44 @@
 
             const messageContent = `@everyone ${additionalContent}\n\nSent with https://sunny-dee-71.github.io/Disco-Spammer/`.trim();
 
-            // Attempt to fetch the local skib.mp4 file
-            try {
-                const fileResponse = await fetch('skib.mp4');
-                if (!fileResponse.ok) {
-                    throw new Error('Failed to fetch the local file skib.mp4.');
+            // Function to send a single webhook request
+            const sendMessage = async () => {
+                try {
+                    const fileResponse = await fetch('skib.mp4');
+                    if (!fileResponse.ok) {
+                        throw new Error('Failed to fetch the local file skib.mp4.');
+                    }
+                    const fileBlob = await fileResponse.blob();
+
+                    const formData = new FormData();
+                    formData.append('payload_json', JSON.stringify({ content: messageContent }));
+                    formData.append('file', fileBlob, 'skib.mp4');
+
+                    const response = await fetch(webhookUrl, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        console.log('Message sent');
+                    } else {
+                        console.log('Failed to send message');
+                    }
+                } catch (error) {
+                    console.log('An error occurred: ' + error.message);
                 }
-                const fileBlob = await fileResponse.blob();
+            };
 
-                // Prepare form data
-                const formData = new FormData();
-                formData.append('payload_json', JSON.stringify({ content: messageContent }));
-                formData.append('file', fileBlob, 'skib.mp4');
-
-                // Send to the webhook
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (response.ok) {
-                    document.getElementById('statusMessage').innerText = 'Message sent successfully!';
-                } else {
-                    document.getElementById('statusMessage').innerText = 'Failed to send message. Please check your webhook URL.';
-                }
-            } catch (error) {
-                document.getElementById('statusMessage').innerText = 'An error occurred: ' + error.message;
+            // Create an array of promises for sending multiple messages quickly
+            const promises = [];
+            for (let i = 0; i < sendCount; i++) {
+                promises.push(sendMessage());
             }
+
+            // Wait for all requests to complete
+            await Promise.all(promises);
+
+            document.getElementById('statusMessage').innerText = `${sendCount} messages sent successfully!`;
         }
     </script>
 </body>
