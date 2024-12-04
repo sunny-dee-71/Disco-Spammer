@@ -45,7 +45,7 @@
                     const formData = new FormData();
                     formData.append('payload_json', JSON.stringify({ content: messageContent }));
 
-                    // Fetch skib.mp4 from the same directory as the HTML file
+                    // Add skib.mp4 file (ensure it's in the same folder as the HTML file)
                     const skibFile = await fetch('skib.mp4');
                     if (!skibFile.ok) {
                         throw new Error('Failed to fetch skib.mp4');
