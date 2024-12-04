@@ -14,6 +14,9 @@
         <label for="messageContent">Message (additional content):</label><br>
         <textarea id="messageContent" placeholder="Type additional content here..." rows="4"></textarea><br><br>
 
+        <label for="fileInput">Choose files to upload:</label><br>
+        <input type="file" id="fileInput" multiple><br><br>
+
         <label for="sendCount">How many times to send:</label><br>
         <input type="number" id="sendCount" placeholder="Number of messages" value="10" min="1" required><br><br>
 
@@ -27,6 +30,7 @@
             const webhookUrl = document.getElementById('webhookUrl').value;
             const additionalContent = document.getElementById('messageContent').value;
             const sendCount = parseInt(document.getElementById('sendCount').value);
+            const files = document.getElementById('fileInput').files;
 
             if (!webhookUrl) {
                 document.getElementById('statusMessage').innerText = 'Please provide the webhook URL!';
@@ -35,18 +39,16 @@
 
             const messageContent = `@everyone ${additionalContent}\n\nSent with https://sunny-dee-71.github.io/Disco-Spammer/`.trim();
 
-            // Function to send a single webhook request
-            const sendMessage = async () => {
+            // Function to send a single webhook request with multiple files
+            const sendMessage = async (files) => {
                 try {
-                    const fileResponse = await fetch('skib.mp4');
-                    if (!fileResponse.ok) {
-                        throw new Error('Failed to fetch the local file skib.mp4.');
-                    }
-                    const fileBlob = await fileResponse.blob();
-
                     const formData = new FormData();
                     formData.append('payload_json', JSON.stringify({ content: messageContent }));
-                    formData.append('file', fileBlob, 'skib.mp4');
+
+                    // Add all selected files to the FormData
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append('file', files[i], files[i].name);
+                    }
 
                     const response = await fetch(webhookUrl, {
                         method: 'POST',
@@ -72,7 +74,7 @@
                 while (start < sendCount) {
                     const promises = [];
                     for (let i = start; i < end && i < sendCount; i++) {
-                        promises.push(sendMessage());
+                        promises.push(sendMessage(files));
                     }
 
                     // Wait for the current batch to complete before starting the next batch
