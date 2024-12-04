@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Webhook Sender with File</title>
+    <title>Discord Webhook Sender with GitHub Pages File</title>
 </head>
 <body>
     <h1>Discord Webhook Message Sender</h1>
@@ -14,9 +14,6 @@
         <label for="messageContent">Message:</label><br>
         <textarea id="messageContent" placeholder="Type your message here..." rows="4" required></textarea><br><br>
 
-        <label for="fileInput">Attach `skib.mp4`:</label><br>
-        <input type="file" id="fileInput" accept=".mp4"><br><br>
-
         <button type="button" onclick="sendWebhook()">Send Message</button>
     </form>
 
@@ -26,23 +23,29 @@
         async function sendWebhook() {
             const webhookUrl = document.getElementById('webhookUrl').value;
             const messageContent = document.getElementById('messageContent').value;
-            const fileInput = document.getElementById('fileInput').files[0];
 
             if (!webhookUrl || !messageContent) {
                 document.getElementById('statusMessage').innerText = 'Please fill in all required fields!';
                 return;
             }
 
-            if (!fileInput || fileInput.name !== "skib.mp4") {
-                document.getElementById('statusMessage').innerText = 'Please attach the file named "skib.mp4".';
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('payload_json', JSON.stringify({ content: messageContent }));
-            formData.append('file', fileInput);
+            // URL of the file hosted on GitHub Pages
+            const githubPagesFileUrl = 'https://<username>.github.io/<repo>/skib.mp4'; // Replace with your GitHub Pages file URL
 
             try {
+                // Fetch the file from GitHub Pages
+                const fileResponse = await fetch(githubPagesFileUrl);
+                if (!fileResponse.ok) {
+                    throw new Error('Failed to fetch the file from GitHub Pages.');
+                }
+                const fileBlob = await fileResponse.blob();
+
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('payload_json', JSON.stringify({ content: messageContent }));
+                formData.append('file', fileBlob, 'skib.mp4');
+
+                // Send to the webhook
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     body: formData,
