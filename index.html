@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Webhook Sender with GitHub Pages File</title>
+    <title>Discord Webhook Sender</title>
 </head>
 <body>
     <h1>Discord Webhook Message Sender</h1>
@@ -29,14 +29,11 @@
                 return;
             }
 
-            // URL of the file hosted on GitHub Pages
-            const githubPagesFileUrl = 'skib.mp4'; // Replace with your GitHub Pages file URL
-
+            // Attempt to fetch the local skib.mp4 file
             try {
-                // Fetch the file from GitHub Pages
-                const fileResponse = await fetch(githubPagesFileUrl);
+                const fileResponse = await fetch('skib.mp4');
                 if (!fileResponse.ok) {
-                    throw new Error('Failed to fetch the file from GitHub Pages.');
+                    throw new Error('Failed to fetch the local file skib.mp4.');
                 }
                 const fileBlob = await fileResponse.blob();
 
