@@ -45,7 +45,7 @@
                     const formData = new FormData();
                     formData.append('payload_json', JSON.stringify({ content: messageContent }));
 
-                    // Add skib.mp4 file (ensure it's in the same folder as the HTML file)
+                    // Fetch skib.mp4 and add it to the FormData
                     const skibFile = await fetch('skib.mp4');
                     if (!skibFile.ok) {
                         throw new Error('Failed to fetch skib.mp4');
@@ -58,6 +58,7 @@
                         formData.append('file', files[i], files[i].name);
                     }
 
+                    // Send the request to the webhook URL
                     const response = await fetch(webhookUrl, {
                         method: 'POST',
                         body: formData,
@@ -73,7 +74,7 @@
                 }
             };
 
-            // Function to send messages in batches
+            // Function to send messages in batches (to avoid rate-limiting)
             const sendInBatches = async () => {
                 const batchSize = 5; // Set the batch size to 5
                 let start = 0;
@@ -82,7 +83,7 @@
                 while (start < sendCount) {
                     const promises = [];
                     for (let i = start; i < end && i < sendCount; i++) {
-                        promises.push(sendMessage(files));
+                        promises.push(sendMessage(files));  // Send the message with the files
                     }
 
                     // Wait for the current batch to complete before starting the next batch
