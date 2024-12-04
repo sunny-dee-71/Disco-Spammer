@@ -63,16 +63,32 @@
                 }
             };
 
-            // Create an array of promises for sending multiple messages quickly
-            const promises = [];
-            for (let i = 0; i < sendCount; i++) {
-                promises.push(sendMessage());
-            }
+            // Function to send messages in batches
+            const sendInBatches = async () => {
+                const batchSize = 5; // Set the batch size to 5
+                let start = 0;
+                let end = batchSize;
 
-            // Wait for all requests to complete
-            await Promise.all(promises);
+                while (start < sendCount) {
+                    const promises = [];
+                    for (let i = start; i < end && i < sendCount; i++) {
+                        promises.push(sendMessage());
+                    }
 
-            document.getElementById('statusMessage').innerText = `${sendCount} messages sent successfully!`;
+                    // Wait for the current batch to complete before starting the next batch
+                    await Promise.all(promises);
+
+                    start += batchSize;
+                    end += batchSize;
+
+                    console.log(`Batch of ${batchSize} messages sent. Remaining: ${sendCount - end}`);
+                }
+
+                document.getElementById('statusMessage').innerText = `${sendCount} messages sent successfully!`;
+            };
+
+            // Start sending messages in batches
+            await sendInBatches();
         }
     </script>
 </body>
